@@ -82,7 +82,7 @@ function AuthForm() {
         ? await supabase.auth.signInWithPassword({ email, password })
         : await supabase.auth.signUp({ email, password, options: { emailRedirectTo: `${window.location.origin}/admin` } });
     setBusy(false);
-    if (res.error) return toast.error(res.error.message);
+    if (res.error) { toast.error(res.error.message); return; }
     if (mode === "up" && !res.data.session) toast.success("Confira seu e-mail para confirmar a conta.");
   };
 
@@ -107,7 +107,7 @@ function Dashboard() {
   const remove = async (p: Product) => {
     if (!confirm(`Excluir "${p.name}"?`)) return;
     const { error } = await supabase.from("products").delete().eq("id", p.id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     if (p.image_url) await supabase.storage.from("jewelry").remove([p.image_url]);
     qc.invalidateQueries({ queryKey: ["products"] });
     toast.success("Peça excluída");
@@ -123,7 +123,7 @@ function Dashboard() {
         <div className="flex gap-2">
           <Button asChild variant="ghost" size="sm"><Link to="/">Ver catálogo</Link></Button>
           <Button variant="ghost" size="sm" onClick={() => supabase.auth.signOut()}>Sair</Button>
-          <Button variant="gold" onClick={() => setEditing({ category: CATEGORIES[0], available: true, featured: false })}><Plus /> Nova peça</Button>
+          <Button variant="gold" onClick={() => setEditing({ category: "Anéis", available: true, featured: false })}><Plus /> Nova peça</Button>
         </div>
       </div>
 
@@ -164,7 +164,7 @@ function SettingsForm() {
 
   const save = async () => {
     const { error } = await supabase.from("site_settings").update(s).eq("id", 1);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     qc.invalidateQueries({ queryKey: ["settings"] });
     toast.success("Informações salvas");
   };
@@ -192,7 +192,7 @@ function ProductForm({ initial, onDone }: { initial: Partial<Product>; onDone: (
     if (file) {
       const path = `${crypto.randomUUID()}.${file.name.split(".").pop() || "jpg"}`;
       const { error } = await supabase.storage.from("jewelry").upload(path, file, { contentType: file.type });
-      if (error) { setBusy(false); return toast.error(error.message); }
+      if (error) { setBusy(false); toast.error(error.message); return; }
       if (p.image_url) await supabase.storage.from("jewelry").remove([p.image_url]);
       image_url = path;
     }
@@ -200,7 +200,7 @@ function ProductForm({ initial, onDone }: { initial: Partial<Product>; onDone: (
     const row = {
       name: p.name ?? "",
       description: p.description ?? "",
-      category: p.category ?? CATEGORIES[0],
+      category: p.category ?? "Anéis",
       material: p.material ?? "",
       price,
       image_url,
@@ -211,7 +211,7 @@ function ProductForm({ initial, onDone }: { initial: Partial<Product>; onDone: (
       ? await supabase.from("products").update(row).eq("id", p.id)
       : await supabase.from("products").insert(row);
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Peça salva");
     onDone();
   };
