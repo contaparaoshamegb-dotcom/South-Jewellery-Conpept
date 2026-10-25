@@ -53,6 +53,27 @@ export type Database = {
         }
         Relationships: []
       }
+      site_settings: {
+        Row: {
+          brand_name: string
+          id: number
+          tagline: string
+          whatsapp: string
+        }
+        Insert: {
+          brand_name?: string
+          id?: number
+          tagline?: string
+          whatsapp?: string
+        }
+        Update: {
+          brand_name?: string
+          id?: number
+          tagline?: string
+          whatsapp?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
